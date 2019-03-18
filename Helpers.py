@@ -6,6 +6,9 @@
 
 from readmidi import MidiFile, getdur
 
+import pyaudio
+import wave
+
 
 class Scale:
     """
@@ -123,3 +126,44 @@ def MIDI_to_WAV(synth, midiFile, fileName, DEBUG=False):
             notes[nn[0].lower()] = start
 
     synth.make_wav(song, fn=fileName, bpm=m.tempo, silent=True)
+
+
+
+
+
+def write_wav_file(filename, frames, rate=44100, channels=2):
+    CHUNK = 1024
+    FORMAT = pyaudio.paInt16
+    RECORD_SECONDS = 5
+
+    p = pyaudio.PyAudio()
+
+    stream = p.open(format=FORMAT,
+                    channels=channels,
+                    rate=rate,
+                    input=True,
+                    frames_per_buffer=CHUNK)
+    """
+    print("* recording")
+
+    frames = []
+
+    for i in range(0, int(rate / CHUNK * RECORD_SECONDS)):
+        data = stream.read(CHUNK)
+        frames.append(data)
+
+    print("* done recording")
+    """
+    stream.stop_stream()
+    stream.close()
+    p.terminate()
+
+    wf = wave.open(filename, 'wb')
+    wf.setnchannels(channels)
+    wf.setsampwidth(p.get_sample_size(FORMAT))
+    wf.setframerate(rate)
+    wf.writeframes(b''.join(frames))
+    wf.close()
+
+
+write_wav_file("test.wav")
