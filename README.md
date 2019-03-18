@@ -1,1 +1,1 @@
-# Musicological_ML_Database_Generator
+# Musicological Machine Learning Database Generator
