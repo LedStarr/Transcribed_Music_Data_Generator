@@ -7,6 +7,8 @@ import random
 from music21 import stream, tempo, note
 from Util.Helpers import midi_to_wav
 
+DEBUG = False
+
 
 class SampleGenerator:
     """
@@ -14,7 +16,7 @@ class SampleGenerator:
     """
 
     def __init__(self, roots, signs, scales, octaves, pauseRatios,
-                 tempi, noteLengths, possibleSynths, DEBUG=True):
+                 tempi, noteLengths, possibleSynths):
         """
         Initializing SampleGenerator - Object
 

@@ -3,8 +3,6 @@
 @author: Tobias Lint
 @email: tobias@lint.at
 """
-
-from readmidi import MidiFile, getdur
 from pyo import *
 from mido import MidiFile
 from Util.NoteExtractor import NoteExtractor
@@ -75,7 +73,7 @@ def midi_to_wav(filename, midi_file_path):
     midi_file_path = MidiFile(midi_file_path)
 
     # Initialize the Server in offline mode.
-    s = Server(duplex=0, audio="offline_nb")
+    s = Server(duplex=0, audio="offline")
     # only show Errors
     s.setVerbosity(1)
 
@@ -99,10 +97,12 @@ def midi_to_wav(filename, midi_file_path):
 
         # synthesize object for every tone
         lfo = Sine(.1).range(0, .18)
-        obj = SineLoop(freq=note_freq, feedback=lfo, mul=0.3).out(dur=dur, delay=delay)
+        objL = SineLoop(freq=note_freq, feedback=lfo, mul=0.3).out(chnl=0, dur=dur, delay=delay)
+        objR = SineLoop(freq=note_freq, feedback=lfo, mul=0.3).out(chnl=1, dur=dur, delay=delay)
 
         # add to List so it stays in memory
-        pyo_objects.append(obj)
+        pyo_objects.append(objL)
+        pyo_objects.append(objR)
 
     # Start with rendering.
     s.start()
