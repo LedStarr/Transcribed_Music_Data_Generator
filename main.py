@@ -2,7 +2,7 @@ from Generators.DataBaseGenerator import DataBaseGenerator
 import os
 import shutil
 
-FOLDER_NAME = "MIDI and Wave Samples"
+FOLDER_NAME = "MIDI and Wave Data"
 
 def __ask_int(message):
     value = ''
