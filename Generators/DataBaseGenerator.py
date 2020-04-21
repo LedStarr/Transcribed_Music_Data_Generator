@@ -153,7 +153,7 @@ class DataBaseGenerator:
 
         df = pd.DataFrame(data=data)
         path_to_csv = os.path.join(self.folderPath, name_of_csv)
-        df.to_csv(path_to_csv, sep=',', encoding='utf-8')
+        df.to_csv(path_to_csv, sep=',', index=False, encoding='utf-8')
 
         print("\nGenerated {0} MIDI- and Wave-File(s) and a CSV-File storing "
             "both references in the Directory: '{1}'.".format(number_of_samples, self.folderPath))
@@ -163,15 +163,15 @@ class DataBaseGenerator:
         # Create save FileName
         scale = str(sample_generator.scale)
         scale = scale.lower().replace("ä", "ae").replace("ö", "oe").replace("ü", "ue")
-        rootNote = str(sample_generator.rootNote.nameWithOctave)
-        rootNote = rootNote.lower().replace("#", "_sharp").replace("-", "_flat")
+        root_note = str(sample_generator.rootNote.nameWithOctave)
+        root_note = root_note.lower().replace("#", "_sharp").replace("-", "_flat")
         tempo = str(sample_generator.tempo)
 
         file_name = str.format("{0}_{1}_Scale({2})_Root({3})_BPM({4}).{5}",
                                prefix,
                                id,
                                scale,
-                               rootNote,
+                               root_note,
                                tempo,
                                postfix)
 
