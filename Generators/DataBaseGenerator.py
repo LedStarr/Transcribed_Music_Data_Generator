@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 from Util.Helpers import Scale
 from Generators.SampleGenerator import SampleGenerator
-
+from Util.Helpers import Synthesizer
 
 class DataBaseGenerator:
     """
@@ -37,6 +37,7 @@ class DataBaseGenerator:
         self.possibleTempi = np.linspace(40, 240, 50, endpoint=True, dtype=int)
         self.possibleScales = self._init_scales()
         self.numberOfNotesPerSample = number_of_notes_per_sample
+        self.synth = Synthesizer()
 
     @staticmethod
     def _init_scales():
@@ -93,8 +94,6 @@ class DataBaseGenerator:
         train_folder = os.path.join(destination_folder, "Train")
         if not os.path.exists(train_folder):
             os.makedirs(train_folder)
-
-
         self.batch_generate(destination_folder=train_folder,
                             number_of_samples=number_of_samples_train,
                             name_of_csv="train.csv")
@@ -135,15 +134,15 @@ class DataBaseGenerator:
 
         inputs = tqdm(range(0, number_of_samples))
 
-        results = Parallel(n_jobs=1)(delayed(self.__generate)(i) for i in inputs)
-
-        for result in results:
+        for i in inputs:
+            result = self.__generate(i)
             ids.append(result[0])
             midi_file_paths.append(result[1])
             wave_file_paths.append(result[2])
             tempi.append(result[3])
             scales.append(result[4])
             rootNotes.append(result[5])
+
 
         # Create and save CSV-File from Lists
         data = {'WAV-File': wave_file_paths,
@@ -197,7 +196,9 @@ class DataBaseGenerator:
 
         # Generate Sample
         sample_gen.generate(self.numberOfNotesPerSample, midi_file_path, wav_file_path)
+        # Synthesize WAV-File from MIDI-File
+        self.synth.midi_to_wav(wav_file_path, midi_file_path)
 
         # Returns ID, relative path to Midi File, relative path to Wave File, Tempo, Scale, Key
-        return str(i), rel_midi_file_path, rel_wav_file_path, sample_gen.tempo, sample_gen.scale, sample_gen.rootNote.nameWithOctave
+        return [str(i), rel_midi_file_path, rel_wav_file_path, sample_gen.tempo, sample_gen.scale, sample_gen.rootNote.nameWithOctave]
 

@@ -5,7 +5,7 @@
 """
 import random
 from music21 import stream, tempo, note
-from Util.Helpers import midi_to_wav
+
 
 DEBUG = False
 
@@ -84,7 +84,7 @@ class SampleGenerator:
             print("WAV: " + wav_file_path)
         s.write('midi', fp=midi_file_path)
 
-        # Synthesize WAV-File from MIDI-File
-        midi_to_wav(wav_file_path, midi_file_path)
+
+
 
 

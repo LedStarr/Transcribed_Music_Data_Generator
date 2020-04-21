@@ -64,48 +64,51 @@ class Scale:
         return notes
 
 
-def midi_to_wav(filename, midi_file_path):
+class Synthesizer:
+    def __init__(self):
+        # Initialize the Server in offline mode.
+        self.server = Server(duplex=0, audio="offline")
+        # only show Errors
+        self.server.setVerbosity(1)
 
-    if not os.path.isfile(midi_file_path) or not midi_file_path.endswith('.mid'):
-        raise Exception("The path given '{0}' to the Function midi_to_wav is not a MIDI-File.".format(midi_file_path))
+    def midi_to_wav(self, filename, midi_file_path):
 
-    # Opening the MIDI file...
-    midi_file_path = MidiFile(midi_file_path)
+        if not os.path.isfile(midi_file_path) or not midi_file_path.endswith('.mid'):
+            raise Exception("The path given '{0}' to the Function midi_to_wav is not a MIDI-File.".format(midi_file_path))
 
-    # Initialize the Server in offline mode.
-    s = Server(duplex=0, audio="offline")
-    # only show Errors
-    s.setVerbosity(1)
+        # Opening the MIDI file...
+        midi_file_path = MidiFile(midi_file_path)
 
-    # Extract all NoteInformation
-    extractor = NoteExtractor()
-    all_notes = extractor.get_notes(midi_file_path)
+        # Extract all NoteInformation
+        extractor = NoteExtractor()
+        all_notes = extractor.get_notes(midi_file_path)
 
-    # Boot the Server.
-    s.boot()
-    # Set recording parameters.
-    s.recordOptions(dur=midi_file_path.length + .1,
-                    filename=filename,
-                    fileformat=0,
-                    sampletype=0)
+        # Boot the Server.
+        self.server.boot()
+        # Set recording parameters.
+        self.server.recordOptions(dur=midi_file_path.length + .1,
+                        filename=filename,
+                        fileformat=0,
+                        sampletype=0)
 
-    pyo_objects = []
-    for midiNote in all_notes:
-        note_freq = midiToHz(midiNote.pitch)
-        dur = midiNote.duration
-        delay = midiNote.startTime
+        pyo_objects = []
+        for midiNote in all_notes:
+            note_freq = midiToHz(midiNote.pitch)
+            dur = midiNote.duration
+            delay = midiNote.startTime
 
-        # synthesize object for every tone
-        lfo = Sine(.1).range(0, .18)
-        objL = SineLoop(freq=note_freq, feedback=lfo, mul=0.3).out(chnl=0, dur=dur, delay=delay)
-        objR = SineLoop(freq=note_freq, feedback=lfo, mul=0.3).out(chnl=1, dur=dur, delay=delay)
+            # synthesize object for every tone
+            lfo = Sine(.1).range(0, .18)
+            objL = SineLoop(freq=note_freq, feedback=lfo, mul=0.3).out(chnl=0, dur=dur, delay=delay)
+            objR = SineLoop(freq=note_freq, feedback=lfo, mul=0.3).out(chnl=1, dur=dur, delay=delay)
 
-        # add to List so it stays in memory
-        pyo_objects.append(objL)
-        pyo_objects.append(objR)
+            # add to List so it stays in memory
+            pyo_objects.append(objL)
+            pyo_objects.append(objR)
 
-    # Start with rendering.
-    s.start()
+        # Start with rendering.
+        self.server.start()
+        # Cleanup for the next pass.
+        self.server.shutdown()
 
-    # Cleanup for the next pass.
-    s.shutdown()
+
