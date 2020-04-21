@@ -22,6 +22,7 @@ def __ask_bool(message):
 
     return value == 'y'
 
+
 def __ask_delete_when_not_empty(path):
     if os.path.exists(path):
         if len(os.listdir(path)) != 0:
@@ -40,6 +41,7 @@ def __ask_delete_when_not_empty(path):
 
     else:
         os.makedirs(path)
+
 
 if __name__ == "__main__":
     # SPLIT

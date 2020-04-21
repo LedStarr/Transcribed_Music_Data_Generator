@@ -4,7 +4,6 @@ import pandas as pd
 import numpy as np
 from joblib import Parallel, delayed
 import multiprocessing
-
 from tqdm import tqdm
 
 from Util.Helpers import Scale
@@ -48,7 +47,7 @@ class DataBaseGenerator:
         phrygian = Scale("Phrygian", 1, 2, 2, 2, 1, 2, 2)
         lydian = Scale("Lydian", 2, 2, 2, 1, 2, 2, 1)
         mixolydian = Scale("Mixolydian", 2, 2, 1, 2, 2, 1, 2)
-        aeolian = Scale("Äolian", 2, 1, 2, 2, 1, 2, 2)
+        aeolian = Scale("Aeolian", 2, 1, 2, 2, 1, 2, 2)
         locrian = Scale("Locrian", 1, 2, 2, 1, 2, 2, 2)
         major = Scale("Major", 2, 2, 1, 2, 2, 2, 1)  # auch Ionisch
         minor = Scale("Minor", 2, 1, 2, 2, 1, 2, 2)  # Äolisch und Moll
