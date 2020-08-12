@@ -1,9 +1,23 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import mido
 
 DEBUG = False
 
+
 class Note:
+    """
+    Helper Class for Extracting Notes from MidiFile
+    """
     def __init__(self, pitch, velocity, channel):
+        """
+        Initializing Note - Object
+
+        Args:
+            pitch: str - Pitch from mido Midi Message
+            velocity: str - Celocity from mido Midi Message
+            channel: str - Channel from mido Midi Message
+        """
         self.pitch = pitch
         self.velocity = velocity
         self.channel = channel
@@ -11,6 +25,9 @@ class Note:
         self.duration = -1
 
     def set_start_time(self, current_time):
+        """
+
+        """
         if DEBUG: print("Note Started at: " + str(current_time))
         self.startTime = current_time
 
@@ -30,12 +47,18 @@ class Note:
 
 
 class NoteExtractor:
+    """
+    Helper Class for extracting all Midi Note specific Information for generating MIDI and WAV Files in a Midi File
+    """
     def __init__(self):
+        """
+        Initializing NoteExtractor - Object
+        """
         self.notPaired = []
         self.paired = []
         self.currentTime = 0.0
 
-    def _add_note_for_paring(self, msg):
+    def __add_note_for_paring(self, msg):
         pitch = msg.note
         velo = msg.velocity
         channel = msg.channel
@@ -44,7 +67,7 @@ class NoteExtractor:
 
         self.notPaired.append(note)
 
-    def _pair_note(self, msg):
+    def __pair_note(self, msg):
         pitch = msg.note
         velocity = msg.velocity
         channel = msg.channel
@@ -56,29 +79,32 @@ class NoteExtractor:
             self.notPaired.remove(pair_note)
         else:
             raise Exception("The note has not been found in not Paired List. " + str(note))
-        # print("Compare Note: {0} count not paired: {1} - count paired: {2}".format(note, len(notPaired), len(Paired)))
 
-    def _reset(self):
+    def __reset(self):
         self.currentTime = 0.0
         self.notPaired = []
         self.paired = []
 
     def get_notes(self, midi_file):
+        """
+        TODO: beschreibungen
+        Returns all Midi Information as Note - Objectt
+        """
         if type(midi_file) is not mido.MidiFile:
             raise Exception(
                 "The Midi File given to this function get_notes is not of Type MidiFile from mido-Library! "
                 "Data: '{0}'".format(midi_file))
 
-        self._reset()
+        self.__reset()
 
         for msg in midi_file:
             delta_time = msg.time
             self.currentTime += delta_time
             if not msg.is_meta:
                 if msg.type == "note_on":
-                    self._add_note_for_paring(msg)
+                    self.__add_note_for_paring(msg)
                 if msg.type == "note_off":
-                    self._pair_note(msg)
+                    self.__pair_note(msg)
             else:
                 if DEBUG: print('Meta: {0}'.format(msg))
         if DEBUG:

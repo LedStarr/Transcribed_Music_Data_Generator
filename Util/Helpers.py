@@ -8,6 +8,7 @@ from mido import MidiFile
 from Util.NoteExtractor import NoteExtractor
 import os
 
+
 class Scale:
     """
     Class for storing Information about a Musical-Scale
@@ -74,7 +75,8 @@ class Synthesizer:
     def midi_to_wav(self, filename, midi_file_path):
 
         if not os.path.isfile(midi_file_path) or not midi_file_path.endswith('.mid'):
-            raise Exception("The path given '{0}' to the Function midi_to_wav is not a MIDI-File.".format(midi_file_path))
+            raise Exception(
+                "The path given '{0}' to the Function midi_to_wav is not a MIDI-File.".format(midi_file_path))
 
         # Opening the MIDI file...
         midi_file_path = MidiFile(midi_file_path)
@@ -87,9 +89,9 @@ class Synthesizer:
         self.server.boot()
         # Set recording parameters.
         self.server.recordOptions(dur=midi_file_path.length + .1,
-                        filename=filename,
-                        fileformat=0,
-                        sampletype=0)
+                                  filename=filename,
+                                  fileformat=0,
+                                  sampletype=0)
 
         pyo_objects = []
         for midiNote in all_notes:
@@ -110,5 +112,3 @@ class Synthesizer:
         self.server.start()
         # Cleanup for the next pass.
         self.server.shutdown()
-
-

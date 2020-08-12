@@ -1,12 +1,14 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import os
 import shutil
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
 
-from Util.Helpers import Scale
 from Generators.SampleGenerator import SampleGenerator
-from Util.Helpers import Synthesizer
+from Util.Helpers import Synthesizer, Scale
+
 
 class DataBaseGenerator:
     """
@@ -18,13 +20,13 @@ class DataBaseGenerator:
         Initializing DataBaseGenerator - Object
 
         Args:
-            number_of_notes_per_sample: int - Number of Samples to be generated and saved into DB
+            number_of_notes_per_sample: int - Number of Notes generated for every Sample
             folder_path: str - Folder to save all Files into
             name_of_csv: str - Name of Database File
         """
         self.DEBUG = False
         self.folderPath = folder_path
-        self.possibleSynthesizer = []
+        self.possibleChordRatios = []
         self.midiFolderName = "MIDI-Files"
         self.wavFolderName = "WAV-Files"
         self.possibleOctaves = [3, 4, 5, 6]
@@ -32,7 +34,8 @@ class DataBaseGenerator:
         self.possibleSigns = ["-", "", "#"]
         self.possibleNoteLengths = ['16th', 'eighth', 'quarter', 'half', 'whole']
         self.possiblePauseRatios = np.linspace(0, 0.40, 10, endpoint=True)
-        self.possibleTempi = np.linspace(40, 240, 50, endpoint=True, dtype=int)
+        self.possibleChordRatios = np.linspace(0, 0.40, 10, endpoint=True)
+        self.possibleTempos = np.linspace(40, 240, 50, endpoint=True, dtype=int)
         self.possibleScales = self._init_scales()
         self.numberOfNotesPerSample = number_of_notes_per_sample
         self.synth = Synthesizer()
@@ -42,14 +45,15 @@ class DataBaseGenerator:
         """
         Returns a list of Scale-Objects which hold all Intervals needed to describe a scale
         """
+
         dorian = Scale("Dorian", 2, 1, 2, 2, 2, 1, 2)
         phrygian = Scale("Phrygian", 1, 2, 2, 2, 1, 2, 2)
         lydian = Scale("Lydian", 2, 2, 2, 1, 2, 2, 1)
         mixolydian = Scale("Mixolydian", 2, 2, 1, 2, 2, 1, 2)
         aeolian = Scale("Aeolian", 2, 1, 2, 2, 1, 2, 2)
         locrian = Scale("Locrian", 1, 2, 2, 1, 2, 2, 2)
-        major = Scale("Major", 2, 2, 1, 2, 2, 2, 1)  # auch Ionisch
-        minor = Scale("Minor", 2, 1, 2, 2, 1, 2, 2)  # Äolisch und Moll
+        major = Scale("Major", 2, 2, 1, 2, 2, 2, 1)
+        minor = Scale("Minor", 2, 1, 2, 2, 1, 2, 2)
         chromatic = Scale("Chromatic", 1, 1, 1, 1, 1, 1, 1)
         gipsy_minor = Scale("GipsyMinor", 2, 1, 3, 1, 1, 3, 1)
         gipsy_major = Scale("GipsyMajor", 1, 3, 1, 2, 1, 3, 1)
@@ -126,7 +130,7 @@ class DataBaseGenerator:
         ids = []
         midi_file_paths = []
         wave_file_paths = []
-        tempi = []
+        tempos = []
         scales = []
         rootNotes = []
 
@@ -137,27 +141,26 @@ class DataBaseGenerator:
             ids.append(result[0])
             midi_file_paths.append(result[1])
             wave_file_paths.append(result[2])
-            tempi.append(result[3])
+            tempos.append(result[3])
             scales.append(result[4])
             rootNotes.append(result[5])
-
 
         # Create and save CSV-File from Lists
         data = {'WAV-File': wave_file_paths,
                 'MIDI-File': midi_file_paths,
-                "BPM": tempi,
+                "BPM": tempos,
                 "Scale": scales,
-                "RootNote": rootNotes }
+                "RootNote": rootNotes}
 
         df = pd.DataFrame(data=data)
         path_to_csv = os.path.join(self.folderPath, name_of_csv)
         df.to_csv(path_to_csv, sep=',', index=False, encoding='utf-8')
 
         print("\nGenerated {0} MIDI- and Wave-File(s) and a CSV-File storing "
-            "both references in the Directory: '{1}'.".format(number_of_samples, self.folderPath))
+              "both references in the Directory: '{1}'.".format(number_of_samples, self.folderPath))
 
-
-    def __create_save_file_name(self, prefix, postfix, id, sample_generator):
+    @staticmethod
+    def __create_save_file_name(prefix, postfix, id, sample_generator):
         # Create save FileName
         scale = str(sample_generator.scale)
         scale = scale.lower().replace("ä", "ae").replace("ö", "oe").replace("ü", "ue")
@@ -180,8 +183,8 @@ class DataBaseGenerator:
         # print("Generate Sample Nr. " + str(i))
         # Init Sample
         sample_gen = SampleGenerator(self.possibleRoots, self.possibleSigns, self.possibleScales,
-                                     self.possibleOctaves, self.possiblePauseRatios, self.possibleTempi,
-                                     self.possibleNoteLengths, self.possibleSynthesizer)
+                                     self.possibleOctaves, self.possiblePauseRatios, self.possibleChordRatios,
+                                     self.possibleTempos, self.possibleNoteLengths)
 
         # Create save FileName
         midi_file_name = self.__create_save_file_name("MIDI", "mid", i, sample_gen)
@@ -198,5 +201,5 @@ class DataBaseGenerator:
         self.synth.midi_to_wav(wav_file_path, midi_file_path)
 
         # Returns ID, relative path to Midi File, relative path to Wave File, Tempo, Scale, Key
-        return [str(i), rel_midi_file_path, rel_wav_file_path, sample_gen.tempo, sample_gen.scale, sample_gen.rootNote.nameWithOctave]
-
+        return [str(i), rel_midi_file_path, rel_wav_file_path, sample_gen.tempo, sample_gen.scale,
+                sample_gen.rootNote.nameWithOctave]
