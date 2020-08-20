@@ -1,5 +1,7 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+"""
+@author: Tobias Lint
+@email: tobias@lint.at
+"""
 import mido
 
 DEBUG = False
@@ -15,7 +17,7 @@ class Note:
 
         Args:
             pitch: str - Pitch from mido Midi Message
-            velocity: str - Celocity from mido Midi Message
+            velocity: str - Velocity from mido Midi Message
             channel: str - Channel from mido Midi Message
         """
         self.pitch = pitch
@@ -26,13 +28,24 @@ class Note:
 
     def set_start_time(self, current_time):
         """
+        Sets the start time of current Note
 
+        Args:
+            current_time: float - Value for indicating current_time for calculating the Duration of current Note
         """
-        if DEBUG: print("Note Started at: " + str(current_time))
+        if DEBUG:
+            print("Note Started at: " + str(current_time))
         self.startTime = current_time
 
     def calc_duration(self, current_time):
-        if DEBUG: print("Start: {0} - Current {1}".format(self.startTime, current_time))
+        """
+        Calculates the Duration of current Note
+
+        Args:
+            current_time: float - Value for indicating current_time for calculating the Duration of current Note
+        """
+        if DEBUG:
+            print("Start: {0} - Current {1}".format(self.startTime, current_time))
         self.duration = (current_time - self.startTime)
 
     def __eq__(self, other):
@@ -51,23 +64,22 @@ class NoteExtractor:
     Helper Class for extracting all Midi Note specific Information for generating MIDI and WAV Files in a Midi File
     """
     def __init__(self):
-        """
-        Initializing NoteExtractor - Object
-        """
         self.notPaired = []
         self.paired = []
         self.currentTime = 0.0
 
     def __add_note_for_paring(self, msg):
+        # TODO:
         pitch = msg.note
-        velo = msg.velocity
+        velocity = msg.velocity
         channel = msg.channel
-        note = Note(pitch, velo, channel)
+        note = Note(pitch, velocity, channel)
         note.set_start_time(self.currentTime)
 
         self.notPaired.append(note)
 
     def __pair_note(self, msg):
+        # TODO:
         pitch = msg.note
         velocity = msg.velocity
         channel = msg.channel
@@ -81,6 +93,9 @@ class NoteExtractor:
             raise Exception("The note has not been found in not Paired List. " + str(note))
 
     def __reset(self):
+        """
+        Resets all Values used for calculation by the Note Extractor
+        """
         self.currentTime = 0.0
         self.notPaired = []
         self.paired = []
@@ -88,7 +103,10 @@ class NoteExtractor:
     def get_notes(self, midi_file):
         """
         TODO: beschreibungen
-        Returns all Midi Information as Note - Objectt
+        Returns all Midi Information as Note - Object
+
+        Args:
+            midi_file - mido.MidiFile
         """
         if type(midi_file) is not mido.MidiFile:
             raise Exception(

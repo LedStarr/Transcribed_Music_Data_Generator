@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 @author: Tobias Lint
 @email: tobias@lint.at
@@ -12,12 +11,11 @@ import os
 class Scale:
     """
     Class for storing Information about a Musical-Scale
-    
     TODO: use Scale-Objects from music21 Library
     """
 
-    def __init__(self, name, first_interval, second_interval, third_interval, fourth_interval, fith_interval=None,
-                 sixth_interval=None, seventh_interval=None, DEBUG=False):
+    def __init__(self, name, first_interval, second_interval, third_interval, fourth_interval, fifth_interval=None,
+                 sixth_interval=None, seventh_interval=None, debug=False):
         """
         Initializing Scale - Object
         
@@ -28,20 +26,20 @@ class Scale:
             second_interval: int - Describes how many musical half steps are between the 2nd Note and the 3rd Note of Scale
             third_interval: int - Describes how many musical half steps are between the 3rd Note and the 4th Note of Scale
             fourth_interval: int - Describes how many musical half steps are between the 4th Note and the 5th Note of Scale
-            fith_interval: int - Describes how many musical half steps are between the 5th Note and the 6th Note of Scale
+            fifth_interval: int - Describes how many musical half steps are between the 5th Note and the 6th Note of Scale
             sixth_interval: int - Describes how many musical half steps are between the 6th Note and the 7th Note of Scale
             seventh_interval: int - Describes how many musical half steps are between the 7th Note and the 8th Note of Scale
-            DEBUG: bool - Switch for Printing Debug-Statements into the console
+            debug: bool - Switch for Printing Debug-Statements into the console
         """
         self.name = name
-        if fith_interval is not None:
+        if fifth_interval is not None:
 
-            self.intervals = [first_interval, second_interval, third_interval, fourth_interval, fith_interval,
+            self.intervals = [first_interval, second_interval, third_interval, fourth_interval, fifth_interval,
                               sixth_interval, seventh_interval]
         else:
             self.intervals = [first_interval, second_interval, third_interval, fourth_interval]
 
-        if DEBUG:
+        if debug:
             print(self.name + " - Scale created")
 
     def __str__(self):
@@ -66,6 +64,10 @@ class Scale:
 
 
 class Synthesizer:
+    """
+    Class for generating WAV-File from a MIDI FIle.
+    TODO: Implement Synthesizer as an Interface for multiple Synthesizers with different style
+    """
     def __init__(self):
         # Initialize the Server in offline mode.
         self.server = Server(duplex=0, audio="offline")
@@ -73,7 +75,13 @@ class Synthesizer:
         self.server.setVerbosity(1)
 
     def midi_to_wav(self, filename, midi_file_path):
+        """
+        Synthesizes a WAV-File from a MIDI-File
 
+        Args:
+            filename: str - Filename of generated WAV-File
+            midi_file_path: str - Path to MIDI File for generating WAV-File
+        """
         if not os.path.isfile(midi_file_path) or not midi_file_path.endswith('.mid'):
             raise Exception(
                 "The path given '{0}' to the Function midi_to_wav is not a MIDI-File.".format(midi_file_path))

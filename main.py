@@ -1,10 +1,18 @@
+"""
+@author: Tobias Lint
+@email: tobias@lint.at
+"""
 from Generators.DataBaseGenerator import DataBaseGenerator
 import os
 import shutil
 
 FOLDER_NAME = "MIDI and Wave Data"
 
+
 def __ask_int(message):
+    """
+    Asks User for an Integer Value
+    """
     value = ''
     while not isinstance(value, int):
         value = input(message)
@@ -16,6 +24,9 @@ def __ask_int(message):
 
 
 def __ask_bool(message):
+    """
+    Asks User for an 'y' or 'n' Char, which corresponds to a boolean.
+    """
     value = ''
     while value != 'y' and value != 'n':
         value = input(message)
@@ -23,27 +34,31 @@ def __ask_bool(message):
     return value == 'y'
 
 
-def __ask_delete_when_not_empty(path):
-    if os.path.exists(path):
-        if len(os.listdir(path)) != 0:
+def __ask_delete_when_not_empty(directory_path):
+    """
+    Asks User if he wants to remove all files in the given Directory and removes them if true.
+    It also creates the Directory if it does not exist.
+    """
+    if os.path.exists(directory_path):
+        if len(os.listdir(directory_path)) != 0:
             do_delete = __ask_bool("The provided path is not empty. Should I empty it? (y/n)")
             if do_delete:
                 try:
                     # Remove folder (if exists) with all files
-                    if os.path.isdir(path):
-                        shutil.rmtree(path, ignore_errors=True)
+                    if os.path.isdir(directory_path):
+                        shutil.rmtree(directory_path, ignore_errors=True)
                     # Create new folder
-                    os.mkdir(path)
+                    os.mkdir(directory_path)
                 except IOError:
                     raise IOError("Error upon either deleting or creating the directory or files. "
                                   "Please provide an empty Directory.")
-
-
     else:
-        os.makedirs(path)
+        os.makedirs(directory_path)
 
 
+# MAIN FUNCTION
 if __name__ == "__main__":
+
     # SPLIT
     split = __ask_bool('Do you want to split the Samples into a training and test set? (y/n)')
 
@@ -57,7 +72,10 @@ if __name__ == "__main__":
     else:
         number_of_samples = __ask_int('How many Samples do you want? \n')
 
-    # Directory
+    # POLYPHONIC
+    polyphonic = __ask_bool('Do you want to have polyphonic Samples in the Samples? (y/n)')
+
+    # DIRECTORY
     setDirectory = __ask_bool('Do you want to provide your own Path? '
                               'Otherwise the Samples will be stored in the Directory '
                               'from where you have started this script. (y/n)')
@@ -80,7 +98,6 @@ if __name__ == "__main__":
         __ask_delete_when_not_empty(path)
     print("Storing Files in Directory: '{0}'".format(path))
 
-
     # GENERATE
     print("\n############## Starting to Generate Sample Database ##############\n")
     print("\n")
@@ -89,10 +106,13 @@ if __name__ == "__main__":
         generator = DataBaseGenerator()
         if split:
             generator.batch_generate_with_split(destination_folder=path,
-                                     number_of_samples_train=number_of_samples_train,
-                                     number_of_samples_test=number_of_samples_test)
+                                                number_of_samples_train=number_of_samples_train,
+                                                number_of_samples_test=number_of_samples_test,
+                                                polyphonic=polyphonic)
         else:
-            generator.batch_generate(destination_folder=path, number_of_samples=number_of_samples)
+            generator.batch_generate(destination_folder=path,
+                                     number_of_samples=number_of_samples,
+                                     polyphonic=polyphonic)
     except PermissionError:
         print("Access to path was denied")
 

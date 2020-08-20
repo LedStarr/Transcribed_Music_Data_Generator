@@ -1,11 +1,13 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+"""
+@author: Tobias Lint
+@email: tobias@lint.at
+"""
 import os
 import shutil
 import pandas as pd
 import numpy as np
-from tqdm import tqdm
 
+from tqdm import tqdm
 from Generators.SampleGenerator import SampleGenerator
 from Util.Helpers import Synthesizer, Scale
 
@@ -22,7 +24,6 @@ class DataBaseGenerator:
         Args:
             number_of_notes_per_sample: int - Number of Notes generated for every Sample
             folder_path: str - Folder to save all Files into
-            name_of_csv: str - Name of Database File
         """
         self.DEBUG = False
         self.folderPath = folder_path
@@ -36,16 +37,15 @@ class DataBaseGenerator:
         self.possiblePauseRatios = np.linspace(0, 0.40, 10, endpoint=True)
         self.possibleChordRatios = np.linspace(0, 0.40, 10, endpoint=True)
         self.possibleTempos = np.linspace(40, 240, 50, endpoint=True, dtype=int)
-        self.possibleScales = self._init_scales()
+        self.possibleScales = self.__init_scales()
         self.numberOfNotesPerSample = number_of_notes_per_sample
         self.synth = Synthesizer()
 
     @staticmethod
-    def _init_scales():
+    def __init_scales():
         """
         Returns a list of Scale-Objects which hold all Intervals needed to describe a scale
         """
-
         dorian = Scale("Dorian", 2, 1, 2, 2, 2, 1, 2)
         phrygian = Scale("Phrygian", 1, 2, 2, 2, 1, 2, 2)
         lydian = Scale("Lydian", 2, 2, 2, 1, 2, 2, 1)
@@ -55,26 +55,60 @@ class DataBaseGenerator:
         major = Scale("Major", 2, 2, 1, 2, 2, 2, 1)
         minor = Scale("Minor", 2, 1, 2, 2, 1, 2, 2)
         chromatic = Scale("Chromatic", 1, 1, 1, 1, 1, 1, 1)
-        gipsy_minor = Scale("GipsyMinor", 2, 1, 3, 1, 1, 3, 1)
-        gipsy_major = Scale("GipsyMajor", 1, 3, 1, 2, 1, 3, 1)
+        gypsy_minor = Scale("GypsyMinor", 2, 1, 3, 1, 1, 3, 1)
+        gypsy_major = Scale("GypsyMajor", 1, 3, 1, 2, 1, 3, 1)
         pentatonic_major = Scale("PentatonicMajor", 2, 2, 3, 2)
         pentatonic_minor = Scale("PentatonicMinor", 1, 2, 4, 1)
 
-        scales = [dorian, phrygian, lydian, mixolydian, aeolian, locrian, major, minor, chromatic, gipsy_minor,
-                  gipsy_major, pentatonic_major, pentatonic_minor]
+        scales = [dorian, phrygian, lydian, mixolydian, aeolian, locrian, major, minor, chromatic, gypsy_minor,
+                  gypsy_major, pentatonic_major, pentatonic_minor]
 
         return scales
 
-    def _handle_folders(self, destination_folder):
+    @staticmethod
+    def __create_save_file_name(prefix, postfix, current_id, sample_generator):
+        """
+        Creates a save filename for the MIDI and WAV Files from the Parameters used for generating them.
+
+        Args:
+            prefix = str - Holds the string that is placed in front of the generated string.
+            postfix = str - Holds the string that is placed after the generated string.
+            id = int - Holds the current ID of the generated MIDI and WAV Files.
+            sample_generator - SampleGenerator - Holds all Parameters
+        """
+        # Create save FileName
+        scale = str(sample_generator.scale)
+        scale = scale.lower().replace("ä", "ae").replace("ö", "oe").replace("ü", "ue")
+        root_note = str(sample_generator.rootNote.nameWithOctave)
+        root_note = root_note.lower().replace("#", "_sharp").replace("-", "_flat")
+        tempo = str(sample_generator.tempo)
+
+        file_name = str.format("{0}_{1}_Scale({2})_Root({3})_BPM({4}).{5}",
+                               prefix,
+                               current_id,
+                               scale,
+                               root_note,
+                               tempo,
+                               postfix)
+
+        file_name = file_name.replace(" ", "")
+        return file_name
+
+    def __handle_folders(self, destination_directory):
+        """
+        Checks the destination Directory for errors and possible files inside.
+        Empties MIDI and WAV Folders or creates new ones if not exi
+        """
+
         # Checks Paths
-        if os.path.exists(destination_folder) and os.path.isdir(destination_folder):
-            if len(os.listdir(destination_folder)) == 0:
-                self.folderPath = destination_folder
+        if os.path.exists(destination_directory) and os.path.isdir(destination_directory):
+            if len(os.listdir(destination_directory)) == 0:
+                self.folderPath = destination_directory
             else:
-                raise Exception("The given Directory: '{0}' is not empty!".format(destination_folder))
+                raise Exception("The given Directory: '{0}' is not empty!".format(destination_directory))
 
         else:
-            raise Exception("The given Directory: '{0}' is not a valid Directory!".format(destination_folder))
+            raise Exception("The given Directory: '{0}' is not a valid Directory!".format(destination_directory))
 
         # Empty Folders
         midi_folder_path = os.path.join(self.folderPath, self.midiFolderName)
@@ -90,7 +124,9 @@ class DataBaseGenerator:
         else:
             os.makedirs(wave_folder_path)
 
-    def batch_generate_with_split(self, destination_folder, number_of_samples_train, number_of_samples_test):
+    def batch_generate_with_split(self, destination_folder, number_of_samples_train,
+                                  number_of_samples_test, polyphonic):
+        # TODO:
         # Train
         print("############## Generating Train Files...###########################\n")
         train_folder = os.path.join(destination_folder, "Train")
@@ -98,7 +134,8 @@ class DataBaseGenerator:
             os.makedirs(train_folder)
         self.batch_generate(destination_folder=train_folder,
                             number_of_samples=number_of_samples_train,
-                            name_of_csv="train.csv")
+                            name_of_csv="train.csv",
+                            polyphonic=polyphonic)
         print("############## Finished generating Train Files####################\n")
         # Test
         print("############## Generating Test Files...###########################\n")
@@ -107,10 +144,11 @@ class DataBaseGenerator:
             os.makedirs(test_folder)
         self.batch_generate(destination_folder=test_folder,
                             number_of_samples=number_of_samples_test,
-                            name_of_csv="test.csv")
+                            name_of_csv="test.csv",
+                            polyphonic=polyphonic)
         print("############## Finished generating Test Files#####################\n")
 
-    def batch_generate(self, destination_folder, number_of_samples, name_of_csv="DB_WAVs_and_MIDIs.csv"):
+    def batch_generate(self, destination_folder, number_of_samples, name_of_csv="DB_WAVs_and_MIDIs.csv", polyphonic=True):
         """
         Checks if self.midiFolderName and self.wavFolderName are already existent in destinationFolder and clears them if Files are already in them.
         If they do not exists then it will create them.
@@ -123,8 +161,9 @@ class DataBaseGenerator:
             number_of_samples: int - Number of Samples to generate
             destination_folder: str - Path where to save Files into
             name_of_csv: str - Name of CSV
+            polyphonic: bool - Switch for creating polyphonic Samples or Monophonic
         """
-        self._handle_folders(destination_folder)
+        self.__handle_folders(destination_folder)
         print("Generating Data into: '{0}'\n".format(self.folderPath))
         # Init Lists
         ids = []
@@ -132,25 +171,25 @@ class DataBaseGenerator:
         wave_file_paths = []
         tempos = []
         scales = []
-        rootNotes = []
+        root_notes = []
 
         inputs = tqdm(range(0, number_of_samples))
 
         for i in inputs:
-            result = self.__generate(i)
+            result = self.__generate(i, polyphonic)
             ids.append(result[0])
             midi_file_paths.append(result[1])
             wave_file_paths.append(result[2])
             tempos.append(result[3])
             scales.append(result[4])
-            rootNotes.append(result[5])
+            root_notes.append(result[5])
 
         # Create and save CSV-File from Lists
         data = {'WAV-File': wave_file_paths,
                 'MIDI-File': midi_file_paths,
                 "BPM": tempos,
                 "Scale": scales,
-                "RootNote": rootNotes}
+                "RootNote": root_notes}
 
         df = pd.DataFrame(data=data)
         path_to_csv = os.path.join(self.folderPath, name_of_csv)
@@ -159,27 +198,10 @@ class DataBaseGenerator:
         print("\nGenerated {0} MIDI- and Wave-File(s) and a CSV-File storing "
               "both references in the Directory: '{1}'.".format(number_of_samples, self.folderPath))
 
-    @staticmethod
-    def __create_save_file_name(prefix, postfix, id, sample_generator):
-        # Create save FileName
-        scale = str(sample_generator.scale)
-        scale = scale.lower().replace("ä", "ae").replace("ö", "oe").replace("ü", "ue")
-        root_note = str(sample_generator.rootNote.nameWithOctave)
-        root_note = root_note.lower().replace("#", "_sharp").replace("-", "_flat")
-        tempo = str(sample_generator.tempo)
 
-        file_name = str.format("{0}_{1}_Scale({2})_Root({3})_BPM({4}).{5}",
-                               prefix,
-                               id,
-                               scale,
-                               root_note,
-                               tempo,
-                               postfix)
 
-        file_name = file_name.replace(" ", "")
-        return file_name
-
-    def __generate(self, i):
+    def __generate(self, i, polyphonic):
+        #TODO:
         # print("Generate Sample Nr. " + str(i))
         # Init Sample
         sample_gen = SampleGenerator(self.possibleRoots, self.possibleSigns, self.possibleScales,
@@ -196,7 +218,7 @@ class DataBaseGenerator:
         rel_wav_file_path = os.path.join(self.wavFolderName, wav_file_name)
 
         # Generate Sample
-        sample_gen.generate(self.numberOfNotesPerSample, midi_file_path, wav_file_path)
+        sample_gen.generate(self.numberOfNotesPerSample, midi_file_path, wav_file_path, polyphonic)
         # Synthesize WAV-File from MIDI-File
         self.synth.midi_to_wav(wav_file_path, midi_file_path)
 
