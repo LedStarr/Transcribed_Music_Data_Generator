@@ -100,7 +100,7 @@ class DataBaseGenerator:
         Empties MIDI and WAV Folders or creates new ones if not existent.
 
         Args:
-            destination_directory: str -
+            destination_directory: str - Path to Directory that will be checked.
         """
 
         # Checks Paths
@@ -214,7 +214,6 @@ class DataBaseGenerator:
 
         print("\nGenerated {0} MIDI- and Wave-File(s) and a CSV-File storing "
               "both references in the Directory: '{1}'.".format(number_of_samples, self.folderPath))
-
 
     def __generate(self, i, polyphonic):
         """

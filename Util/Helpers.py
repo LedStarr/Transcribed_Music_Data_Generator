@@ -109,12 +109,12 @@ class Synthesizer:
 
             # synthesize object for every tone
             lfo = Sine(.1).range(0, .18)
-            objL = SineLoop(freq=note_freq, feedback=lfo, mul=0.3).out(chnl=0, dur=dur, delay=delay)
-            objR = SineLoop(freq=note_freq, feedback=lfo, mul=0.3).out(chnl=1, dur=dur, delay=delay)
+            obj_l = SineLoop(freq=note_freq, feedback=lfo, mul=0.3).out(chnl=0, dur=dur, delay=delay)
+            obj_r = SineLoop(freq=note_freq, feedback=lfo, mul=0.3).out(chnl=1, dur=dur, delay=delay)
 
             # add to List so it stays in memory
-            pyo_objects.append(objL)
-            pyo_objects.append(objR)
+            pyo_objects.append(obj_l)
+            pyo_objects.append(obj_r)
 
         # Start with rendering.
         self.server.start()
