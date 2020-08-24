@@ -1,6 +1,6 @@
 """
-@author: Tobias Lint
-@email: tobias@lint.at
+Copyright (c) 2020 Tobias Lint <tobias@lint.at>. All rights reserved.
+Licensed under the MIT License.
 """
 import random
 from music21 import stream, tempo, note, chord
