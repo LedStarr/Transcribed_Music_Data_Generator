@@ -12,6 +12,9 @@ FOLDER_NAME = "MIDI and Wave Data"
 def __ask_int(message):
     """
     Asks User for an Integer Value
+
+    Args:
+        message = str - Input from Console
     """
     value = ''
     while not isinstance(value, int):
@@ -26,6 +29,9 @@ def __ask_int(message):
 def __ask_bool(message):
     """
     Asks User for an 'y' or 'n' Char, which corresponds to a boolean.
+
+    Args:
+        message = str - Input from Console
     """
     value = ''
     while value != 'y' and value != 'n':
@@ -38,6 +44,9 @@ def __ask_delete_when_not_empty(directory_path):
     """
     Asks User if he wants to remove all files in the given Directory and removes them if true.
     It also creates the Directory if it does not exist.
+
+    Args:
+        directory_path = str - Input from Console
     """
     if os.path.exists(directory_path):
         if len(os.listdir(directory_path)) != 0:
