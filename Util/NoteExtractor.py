@@ -11,6 +11,7 @@ class Note:
     """
     Helper Class for Extracting Notes from MidiFile
     """
+
     def __init__(self, pitch, velocity, channel):
         """
         Initializing Note - Object
@@ -63,13 +64,19 @@ class NoteExtractor:
     """
     Helper Class for extracting all Midi Note specific Information for generating MIDI and WAV Files in a Midi File
     """
+
     def __init__(self):
         self.notPaired = []
         self.paired = []
         self.currentTime = 0.0
 
     def __add_note_for_paring(self, msg):
-        # TODO:
+        """
+        Adds Note Object to self.notPaired List for paring the Midi-Start Message with its correlating MIDI-End Message.
+
+        Args:
+            msg - mido.Message Holds all Information about the MIDI-Event stored in this Message
+        """
         pitch = msg.note
         velocity = msg.velocity
         channel = msg.channel
@@ -79,7 +86,12 @@ class NoteExtractor:
         self.notPaired.append(note)
 
     def __pair_note(self, msg):
-        # TODO:
+        """
+        Pairs all Notes in self.notPaired and calculates the duration for the Midi-Note that is created by paring.
+
+        Args:
+            msg - mido.Message Holds all Information about the MIDI-Event stored in this Message
+        """
         pitch = msg.note
         velocity = msg.velocity
         channel = msg.channel
@@ -102,7 +114,6 @@ class NoteExtractor:
 
     def get_notes(self, midi_file):
         """
-        TODO: beschreibungen
         Returns all Midi Information as Note - Object
 
         Args:
@@ -124,11 +135,11 @@ class NoteExtractor:
                 if msg.type == "note_off":
                     self.__pair_note(msg)
             else:
-                if DEBUG: print('Meta: {0}'.format(msg))
+                if DEBUG:
+                    print('Meta: {0}'.format(msg))
         if DEBUG:
             print("Total Time Elapsed: " + str(self.currentTime))
             print("Time from file: " + str(midi_file.length))
 
         sorted(self.paired, key=lambda note: note.startTime)
         return self.paired
-

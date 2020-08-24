@@ -105,7 +105,7 @@ if __name__ == "__main__":
     try:
         generator = DataBaseGenerator()
         if split:
-            generator.batch_generate_with_split(destination_folder=path,
+            generator.batch_generate_with_split(destination_directory=path,
                                                 number_of_samples_train=number_of_samples_train,
                                                 number_of_samples_test=number_of_samples_test,
                                                 polyphonic=polyphonic)

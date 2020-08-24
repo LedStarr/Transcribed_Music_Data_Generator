@@ -97,7 +97,10 @@ class DataBaseGenerator:
     def __handle_folders(self, destination_directory):
         """
         Checks the destination Directory for errors and possible files inside.
-        Empties MIDI and WAV Folders or creates new ones if not exi
+        Empties MIDI and WAV Folders or creates new ones if not existent.
+
+        Args:
+            destination_directory: str -
         """
 
         # Checks Paths
@@ -124,12 +127,27 @@ class DataBaseGenerator:
         else:
             os.makedirs(wave_folder_path)
 
-    def batch_generate_with_split(self, destination_folder, number_of_samples_train,
+    def batch_generate_with_split(self, destination_directory, number_of_samples_train,
                                   number_of_samples_test, polyphonic):
-        # TODO:
+        """
+        Checks if self.midiFolderName and self.wavFolderName are already existent in destinationFolder and clears them
+        if Files are already in them. If they do not exists then it will create them.
+
+        Then it generates as much MIDI-Files as given by numberOfSamples. From these Files WAV-Files are synthesized and
+        the Paths to both MIDI and WAV-Files are stored in a CSV File which is also saved into destinationFolder.
+
+        These generated Files are split into a test and a train Data Set.
+
+        Args:
+
+            destination_directory: str - Path where to save Files into
+            number_of_samples_train: int - Number of Samples to generate for the train Data Set
+            number_of_samples_test: int - Number of Samples to generate for the test Data Set
+            polyphonic: bool - Switch for creating polyphonic Samples or Monophonic
+        """
         # Train
         print("############## Generating Train Files...###########################\n")
-        train_folder = os.path.join(destination_folder, "Train")
+        train_folder = os.path.join(destination_directory, "Train")
         if not os.path.exists(train_folder):
             os.makedirs(train_folder)
         self.batch_generate(destination_folder=train_folder,
@@ -139,7 +157,7 @@ class DataBaseGenerator:
         print("############## Finished generating Train Files####################\n")
         # Test
         print("############## Generating Test Files...###########################\n")
-        test_folder = os.path.join(destination_folder, "Test")
+        test_folder = os.path.join(destination_directory, "Test")
         if not os.path.exists(test_folder):
             os.makedirs(test_folder)
         self.batch_generate(destination_folder=test_folder,
@@ -150,12 +168,11 @@ class DataBaseGenerator:
 
     def batch_generate(self, destination_folder, number_of_samples, name_of_csv="DB_WAVs_and_MIDIs.csv", polyphonic=True):
         """
-        Checks if self.midiFolderName and self.wavFolderName are already existent in destinationFolder and clears them if Files are already in them.
-        If they do not exists then it will create them.
+        Checks if self.midiFolderName and self.wavFolderName are already existent in destinationFolder and clears them
+        if Files are already in them. If they do not exists then it will create them.
 
         Then it generates as much MIDI-Files as given by numberOfSamples. From these Files WAV-Files are synthesized and
-        the Paths to both MIDI and WAV-Files are stored in a CSV File wich is also saved into destinationFolder.
-
+        the Paths to both MIDI and WAV-Files are stored in a CSV File which is also saved into destinationFolder.
 
         Args:
             number_of_samples: int - Number of Samples to generate
@@ -199,10 +216,14 @@ class DataBaseGenerator:
               "both references in the Directory: '{1}'.".format(number_of_samples, self.folderPath))
 
 
-
     def __generate(self, i, polyphonic):
-        #TODO:
-        # print("Generate Sample Nr. " + str(i))
+        """
+        Picks a specific set of Parameters for generating one Sample (Midi- and WAV), creates save filenames,
+        generates the Sample from the picked Parameters and returns the paths to the saved Files with some other
+
+        Args:
+            polyphonic: bool - Switch for creating polyphonic Samples or Monophonic
+        """
         # Init Sample
         sample_gen = SampleGenerator(self.possibleRoots, self.possibleSigns, self.possibleScales,
                                      self.possibleOctaves, self.possiblePauseRatios, self.possibleChordRatios,

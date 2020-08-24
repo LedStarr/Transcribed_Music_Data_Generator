@@ -66,7 +66,7 @@ class Scale:
 class Synthesizer:
     """
     Class for generating WAV-File from a MIDI FIle.
-    TODO: Implement Synthesizer as an Interface for multiple Synthesizers with different style
+    TODO: Implement Synthesizer as an Interface for multiple Synthesizers with different stiles
     """
     def __init__(self):
         # Initialize the Server in offline mode.
