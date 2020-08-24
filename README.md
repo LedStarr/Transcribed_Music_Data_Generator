@@ -1,6 +1,6 @@
 # Transcribed Music Data Generator
 
-This Script is intended to help Musicologists and everybody else to generate randomly generated *MIDI* and *WAV Files*. 
+This Script is intended to help Musicologists to generate randomly generated *MIDI* and *WAV Files*. 
 
 First it will generate a *MIDI File* and then synthesizes a *WAV File* from it. 
 Theses Files will be stored inside a *CSV* or a Train and Test *CSV* afterwards and stores the relative paths 
