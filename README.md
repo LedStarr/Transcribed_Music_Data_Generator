@@ -1,5 +1,4 @@
-# Musicological Machine Learning Database Generator
-
+# Transcribed Music Data Generator
 
 This Script is intended to help Musicologists and everybody else to generate randomly generated *MIDI* and *WAV Files*. 
 
