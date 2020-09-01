@@ -82,7 +82,14 @@ if __name__ == "__main__":
         number_of_samples = __ask_int('How many Samples do you want? \n')
 
     # POLYPHONIC
-    polyphonic = __ask_bool('Do you want to have polyphonic Samples in the Samples? (y/n)')
+    use_polyphonic = __ask_bool('Do you want to have polyphonic Samples in the Samples? (y/n)')
+
+    # NOTES PER SAMPLE
+    notes_per_sample = __ask_int('How many Notes, Pauses and/or Chords should be in one Sample? (y/n)')
+
+    # MULTIPLE SYNTH MODULES
+    use_synth_modules = __ask_bool('Do you want to use multiple synth modules? '
+                                   'This will make the Samples get synthesized with different sound colors.(y/n)')
 
     # DIRECTORY
     setDirectory = __ask_bool('Do you want to provide your own Path? '
@@ -112,16 +119,16 @@ if __name__ == "__main__":
     print("\n")
 
     try:
-        generator = DataBaseGenerator()
+        generator = DataBaseGenerator(number_of_notes_per_sample=notes_per_sample, use_synth_modules=use_synth_modules)
         if split:
             generator.batch_generate_with_split(destination_directory=path,
                                                 number_of_samples_train=number_of_samples_train,
                                                 number_of_samples_test=number_of_samples_test,
-                                                polyphonic=polyphonic)
+                                                use_polyphonic=use_polyphonic)
         else:
             generator.batch_generate(destination_folder=path,
                                      number_of_samples=number_of_samples,
-                                     polyphonic=polyphonic)
+                                     use_polyphonic=use_polyphonic)
     except PermissionError:
         print("Access to path was denied")
 

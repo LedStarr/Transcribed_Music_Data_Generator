@@ -4,6 +4,7 @@ Licensed under the MIT License.
 """
 import random
 from music21 import stream, tempo, note, chord
+from Util.Helpers import WavGenerator
 
 
 class SampleGenerator:
@@ -12,19 +13,20 @@ class SampleGenerator:
     """
 
     def __init__(self, roots, signs, scales, octaves, pause_ratios,
-                 chord_ratios, tempos, note_lengths, debug=False):
+                 chord_ratios, tempos, note_lengths, synth_modules, debug=False):
         """
         Initializing SampleGenerator - Object
 
         Args:
             roots: List of Str - used for generating Note-Objects 
             signs: List of Str - used for generating Note-Objects 
-            scales: List of Scale-Objects - used for generating Note-Objects
+            scales: List of Scale Objects - used for generating Note-Objects
             octaves: List of int - used for generating Note-Objects
             pause_ratios: List of float - used for generating Note-Objects
             chord_ratios: List of float - used for generating Note-Objects
             tempos: List of int - used for generating Note-Objects
             note_lengths: List of Str - used for generating Note-Objects
+            synth_modules: List of SynthModule Objects - user for creating a WAV File from the generated MIDI FIle
             debug: bool - Switch for Printing Debug-Statements into the console
         """
         self.scale = scales[random.randrange(len(scales))]
@@ -37,6 +39,7 @@ class SampleGenerator:
         self.chordRatio = chord_ratios[random.randrange(len(chord_ratios))]
         self.tempo = tempos[random.randrange(len(tempos))]
         self.possibleNoteLengths = note_lengths
+        self.wav_generator = WavGenerator(synth_modules[random.randrange((len(synth_modules)))])
         self.debug = debug
 
     def __str__(self):
@@ -52,7 +55,7 @@ class SampleGenerator:
         note_length_picker = self.possibleNoteLengths[random.randrange(len(self.possibleNoteLengths))]
         return note_picker.name + str(octave_picker), note_length_picker
 
-    def generate(self, number_of_notes_per_sample, midi_file_path, wav_file_path, polyphonic):
+    def generate(self, number_of_notes_per_sample, midi_file_path, wav_file_path, use_polyphonic):
         """
         Generates as much MIDI-Files as given by numberOfSamples. From these Files WAV-Files are synthesized and
         the Paths to both MIDI and WAV-Files are stored in a CSV File which is also saved into destinationFolder.
@@ -62,7 +65,7 @@ class SampleGenerator:
             number_of_notes_per_sample: int - Number of Notes generated for every Sample
             midi_file_path: str - Path where to save MIDI-Files into
             wav_file_path: str - Path where to save WAV-Files into
-            polyphonic: bool - Switch for Polyphonic Samples or Monophonic
+            use_polyphonic: bool - Switch for Polyphonic Samples or Monophonic
         """
         # Initializing Stream
         s = stream.Measure()
@@ -70,7 +73,7 @@ class SampleGenerator:
 
         for i in range(0, number_of_notes_per_sample):
             if random.uniform(0, 1) > self.pauseRatio:
-                if polyphonic and random.uniform(0, 1) > self.chordRatio:
+                if use_polyphonic and random.uniform(0, 1) > self.chordRatio:
                     # Add Chord
                     notes = []
                     # Creates a chord with either 2, 3 or 4 Notes
@@ -94,3 +97,7 @@ class SampleGenerator:
             print("MIDI: " + midi_file_path)
             print("WAV: " + wav_file_path)
         s.write('midi', fp=midi_file_path)
+
+        # Synthesize WAV-File from MIDI-File
+        self.wav_generator.midi_to_wav(wav_file_path, midi_file_path)
+

@@ -63,16 +63,17 @@ class Scale:
         return notes
 
 
-class Synthesizer:
+class WavGenerator:
     """
     Class for generating WAV-File from a MIDI FIle.
     TODO: Implement Synthesizer as an Interface for multiple Synthesizers with different stiles
     """
-    def __init__(self):
+    def __init__(self, synth_module):
         # Initialize the Server in offline mode.
         self.server = Server(duplex=0, audio="offline")
         # only show Errors
         self.server.setVerbosity(1)
+        self.synth_module = synth_module
 
     def midi_to_wav(self, filename, midi_file_path):
         """
@@ -107,10 +108,8 @@ class Synthesizer:
             dur = midiNote.duration
             delay = midiNote.startTime
 
-            # synthesize object for every tone
-            lfo = Sine(.1).range(0, .18)
-            obj_l = SineLoop(freq=note_freq, feedback=lfo, mul=0.3).out(chnl=0, dur=dur, delay=delay)
-            obj_r = SineLoop(freq=note_freq, feedback=lfo, mul=0.3).out(chnl=1, dur=dur, delay=delay)
+            # synthesize object for every tone left and right channel
+            obj_l, obj_r = self.synth_module.synthesize_midi_note(note_freq, dur, delay)
 
             # add to List so it stays in memory
             pyo_objects.append(obj_l)
@@ -120,3 +119,50 @@ class Synthesizer:
         self.server.start()
         # Cleanup for the next pass.
         self.server.shutdown()
+
+
+class SynthModuleOne:
+    """
+    First Class for defining Sound Color for synthesizing MIDI Notes
+    """
+    # TODO: Should store Parameters for defining the sound color
+    # TODO: Should be using Interfaces and more different sound colors
+
+    @staticmethod
+    def synthesize_midi_note(note_freq, dur, delay):
+        """
+        Synthesizes one MIDI Note with its own sound color
+        Args:
+            note_freq: int - Pitch of note in Hz
+            dur: float - Duration of Note in seconds
+            delay: float - start point of Note in sample. (total time till note is played)
+        """
+        lfo = Sine(.1).range(0, .18)
+        obj_l = SineLoop(freq=note_freq, feedback=lfo, mul=0.3).out(chnl=0, dur=dur, delay=delay)
+        obj_r = SineLoop(freq=note_freq, feedback=lfo, mul=0.3).out(chnl=1, dur=dur, delay=delay)
+
+        return obj_l, obj_r
+
+
+class SynthModuleTwo:
+    """
+    Second Class for defining Sound Color for synthesizing MIDI Notes
+    """
+    # TODO: Should store Parameters for defining the sound color
+    # TODO: Should be using Interfaces and more different sound colors
+
+    @staticmethod
+    def synthesize_midi_note(note_freq, dur, delay):
+        """
+        Synthesizes one MIDI Note with its own sound color
+        Args:
+            note_freq: int - Pitch of note in Hz
+            dur: float - Duration of Note in seconds
+            delay: float - start point of Note in sample. (total time till note is played)
+        """
+        lfo = SuperSaw(.1).range(0, .18)
+        obj_l = SineLoop(freq=note_freq, feedback=lfo, mul=0.3).out(chnl=0, dur=dur, delay=delay)
+        obj_r = SineLoop(freq=note_freq, feedback=lfo, mul=0.3).out(chnl=1, dur=dur, delay=delay)
+
+        return obj_l, obj_r
+
