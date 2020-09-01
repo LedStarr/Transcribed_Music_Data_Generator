@@ -127,6 +127,8 @@ class SynthModuleOne:
     """
     # TODO: Should store Parameters for defining the sound color
     # TODO: Should be using Interfaces and more different sound colors
+    def __str__(self):
+        return "Synth Module One"
 
     @staticmethod
     def synthesize_midi_note(note_freq, dur, delay):
@@ -150,6 +152,8 @@ class SynthModuleTwo:
     """
     # TODO: Should store Parameters for defining the sound color
     # TODO: Should be using Interfaces and more different sound colors
+    def __str__(self):
+        return "Synth Module Two"
 
     @staticmethod
     def synthesize_midi_note(note_freq, dur, delay):

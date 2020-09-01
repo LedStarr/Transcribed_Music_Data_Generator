@@ -193,6 +193,7 @@ class DataBaseGenerator:
         tempos = []
         scales = []
         root_notes = []
+        synth_modules = []
 
         inputs = tqdm(range(0, number_of_samples))
 
@@ -204,13 +205,16 @@ class DataBaseGenerator:
             tempos.append(result[3])
             scales.append(result[4])
             root_notes.append(result[5])
+            synth_modules.append(result[6])
 
         # Create and save CSV-File from Lists
         data = {'WAV-File': wave_file_paths,
                 'MIDI-File': midi_file_paths,
                 "BPM": tempos,
                 "Scale": scales,
-                "RootNote": root_notes}
+                "RootNote": root_notes,
+                "SynthModules": synth_modules
+                }
 
         df = pd.DataFrame(data=data)
         path_to_csv = os.path.join(self.folderPath, name_of_csv)
@@ -246,4 +250,4 @@ class DataBaseGenerator:
 
         # Returns ID, relative path to Midi File, relative path to Wave File, Tempo, Scale, Key
         return [str(i), rel_midi_file_path, rel_wav_file_path, sample_gen.tempo, sample_gen.scale,
-                sample_gen.rootNote.nameWithOctave]
+                sample_gen.rootNote.nameWithOctave, sample_gen.wav_generator.synth_module]
