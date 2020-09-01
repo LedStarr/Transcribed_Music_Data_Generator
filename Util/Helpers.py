@@ -50,9 +50,9 @@ class Scale:
         Calculates all notes in Scale 
         
         Args:
-            root_note: Note Object - Base for calculating all notes in Scale
+            root_note: music21 Note Object - Base for calculating all notes in Scale
         Return:
-            notes: List of Note Objects
+            notes: List of music21 Note Objects
         """
         tmp = root_note
         notes = [tmp]
